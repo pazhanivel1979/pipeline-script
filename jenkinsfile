@@ -1,0 +1,62 @@
+pipeline {
+    agent none
+    
+    stages {
+        stage ('Non -paralell') {
+            agent {
+                label 'master'
+            }
+            steps {
+                echo 'This stage will be executed first'
+            }
+        }
+        stage ('Running Test Script') {
+            parallel {
+                stage ('Test1') {
+                    agent {
+                        label 'win-agent'
+                    }
+                    steps {
+                        echo 'Test script1 %date% : %time%'
+                    }
+                }
+                stage ('Test2') {
+                    agent {
+                        label 'master'
+                    }
+                    steps {
+                        echo 'Test script2 %date% : %time%'
+                    }
+                }
+                stage ('Test3') {
+                    agent {
+                        label 'win-agent'
+                    }
+                    steps {
+                        echo 'Test script3 %date% : %time%'
+                    }
+                }
+                
+            }
+        }
+        
+    }
+    post{
+        always {
+            echo " This will always run"
+        }
+        failure {
+            echo "This will run only if any stage fails"
+        }
+        success {
+            echo " This will run only when all passes"
+        }
+        unstable {
+            echo " This will run only when any stage marked un stable"
+        }
+        changed {
+            echo " This will run only when the state of the pipeline changes"
+        }
+    }
+    
+}
